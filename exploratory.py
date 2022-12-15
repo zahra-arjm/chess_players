@@ -10,12 +10,14 @@ import pandas as pd
 import os
 import numpy as np
 import matplotlib.pyplot as plt
-from PIL import Image
-from wordcloud import WordCloud, STOPWORDS, ImageColorGenerator
+# from PIL import Image
+# from wordcloud import WordCloud, STOPWORDS, ImageColorGenerator
 from datetime import datetime
+import seaborn as sns
+from sklearn.linear_model import LinearRegression
 
-filterByPlayer = True
-
+# filterByPlayer = True
+filterByPlayer = False
 playerName = "Esipenko"
 playerName = "Firouzja"
 playerName = "Rausis"
@@ -46,18 +48,38 @@ for file in allPickleFiles:
     concat = [df, localDf]
     df = pd.concat(concat)
 
-df.drop_duplicates(subset=['Date', 'Event Name', 'Event Rounds', 'Round', 'White Name',
-       'Black Name', 'Result', 'White ELO', 'Black ELO', 'Moves',
-       'White Av CP Loss', 'Black Av CP Loss', 'Analysis Depth'], inplace=True)
+# df.drop_duplicates(
+#     subset=
+#     ['Date',
+#      'Event Name'
+#      'Event Rounds',
+#      'Round',
+#      'White Name',
+#      'Black Name', 
+#      'Result', 
+#      'White ELO', 
+#      'Black ELO', 
+#      'Moves',       
+#      'White Av CP Loss', 
+#      'Black Av CP Loss', 
+#      'Analysis Depth',
+#      ],
+#       inplace=True
+#       )
 
-
+# remove column Moves
+del df["Moves"]
 df = df.dropna(subset=['White Name'], axis=0)
+df = df[df['White Name'].str.contains('NA')== False]
 df = df.dropna(subset=['Black Name'], axis=0)
+df = df[df['Black Name'].str.contains('NA')== False]
 df = df.dropna(subset=['White ELO'], axis=0)
+df = df[df['White ELO'].str.contains('NA')== False]
 df = df.dropna(subset=['Black ELO'], axis=0)
+df = df[df['Black ELO'].str.contains('NA')== False]
 df['White ELO'] = df['White ELO'].apply(lambda x: int(x))
 df['Black ELO'] = df['Black ELO'].apply(lambda x: int(x))
-df['Moves'] = df['Moves'].apply(lambda x: int(x))
+# df['Moves'] = df['Moves'].apply(lambda x: int(x))
 df['White Av CP Loss'] = df['White Av CP Loss'].apply(lambda x: float(x))
 df['Black Av CP Loss'] = df['Black Av CP Loss'].apply(lambda x: float(x))
 df['Analysis Depth'] = df['Analysis Depth'].apply(lambda x: int(x))
@@ -81,6 +103,7 @@ if filterByMaxDate == True:
 
 
 df.reset_index(inplace=True, drop=True)
+
 
 whiteRatingDf = pd.DataFrame(columns=['Player', 'Rating', 'CP Loss List', 'Av CP Loss', 'Std. Dev. CP Loss'])
 blackRatingDf = pd.DataFrame(columns=['Player', 'Rating', 'CP Loss List', 'Av CP Loss', 'Std. Dev. CP Loss'])
@@ -138,10 +161,14 @@ groupedCorrelationDf = correlationDf.groupby('Tier').agg({'Rating': np.mean, 'Av
 #groupedCorrelationDf = groupedCorrelationDf[groupedCorrelationDf['Rating'] >=2200] # Uncomment this line in case you want to look only after 2200 and get more consistent data
 groupedCorrelationDf = groupedCorrelationDf[groupedCorrelationDf['Games'] >=30] # Stattistical relevance
 groupedCorrelationDf = groupedCorrelationDf[groupedCorrelationDf.index > 0]
-print(groupedCorrelationDf[['Rating', 'Av CP Loss', 'Std. Dev. CP Loss']].corr(method='pearson'))
+print(f"The correlation after averaging Tier-wise: {groupedCorrelationDf[['Rating', 'Av CP Loss', 'Std. Dev. CP Loss']].corr(method='pearson')}")
+
+corDf = correlationDf[correlationDf.index >= 0]
+print(f"The correlation without averaging: {corDf[['Rating', 'Av CP Loss', 'Std. Dev. CP Loss']].corr(method='pearson')}")
+
 dfToPlot = groupedCorrelationDf[['Rating', 'Av CP Loss', 'Std. Dev. CP Loss']].copy()
 
-f = plt.figure(figsize=(19, 15))
+f = plt.figure(figsize=(10, 8))
 plt.matshow(dfToPlot.corr(method='pearson'), fignum=f.number)
 plt.xticks(range(dfToPlot.select_dtypes(['number']).shape[1]), dfToPlot.select_dtypes(['number']).columns, fontsize=14, rotation=45)
 plt.yticks(range(dfToPlot.select_dtypes(['number']).shape[1]), dfToPlot.select_dtypes(['number']).columns, fontsize=14)
@@ -155,6 +182,9 @@ plt.matshow(dfToPlot.corr(method='pearson'))
 plt.show()
 
 
+
+# sns.lmplot(x='Rating', y='Av CP Loss', data=groupedCorrelationDf, fit_reg=True, ci=95, n_boot=1000)
+# plt.show()
 # Rating x ACTPL Linear Regression
 dfToPlot
 X = dfToPlot.index.values.reshape(-1, 1)
@@ -162,7 +192,7 @@ y = dfToPlot.iloc[:, 1:2].values
 
 
 # Fitting Linear Regression to the dataset
-from sklearn.linear_model import LinearRegression
+
 lin = LinearRegression()  
 lin.fit(X, y)
 
@@ -196,22 +226,22 @@ plt.show()
 plt.clf()
 
 
-summary = correlationDf['Player'].copy()
-# concatenar as palavras
-all_summary = " ".join(s for s in summary)
-# lista de stopword
-stopwords = set(STOPWORDS)
-stopwords.update(["da", "meu", "em", "você", "de", "ao", "os"])
-# gerar uma wordcloud
-wordcloud = WordCloud(stopwords=stopwords,
-                      background_color="black",
-                      width=1600, height=800).generate(all_summary)
-# mostrar a imagem final
-fig, ax = plt.subplots(figsize=(10,6))
-ax.imshow(wordcloud, interpolation='bilinear')
-ax.set_axis_off()
-plt.imshow(wordcloud);
-wordcloud.to_file("playersWordcloud.png")
-print(groupedCorrelationDf)
+# summary = correlationDf['Player'].copy()
+# # concatenar as palavras
+# all_summary = " ".join(s for s in summary)
+# # lista de stopword
+# stopwords = set(STOPWORDS)
+# stopwords.update(["da", "meu", "em", "você", "de", "ao", "os"])
+# # gerar uma wordcloud
+# wordcloud = WordCloud(stopwords=stopwords,
+#                       background_color="black",
+#                       width=1600, height=800).generate(all_summary)
+# # mostrar a imagem final
+# fig, ax = plt.subplots(figsize=(10,6))
+# ax.imshow(wordcloud, interpolation='bilinear')
+# ax.set_axis_off()
+# plt.imshow(wordcloud);
+# wordcloud.to_file("playersWordcloud.png")
+# print(groupedCorrelationDf)
 
 
