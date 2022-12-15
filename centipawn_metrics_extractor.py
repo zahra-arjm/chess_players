@@ -13,7 +13,7 @@ def evaluate_game(board, engine, limit):
 
 start = datetime.now()
 
-engine = chess.engine.SimpleEngine.popen_uci('/usr/local/Cellar/stockfish/15/bin/stockfish') # put here your path to your engine on your computer
+engine = chess.engine.SimpleEngine.popen_uci('U:\chess\stockfish_15_win_x64_avx2\stockfish_15_x64_avx2') # put here your path to your engine on your computer
 
 movetimesec = 999
 depth = 20
@@ -132,7 +132,7 @@ for game in tqdm(my_list):
         
         concat = [finalDf, gameDf]
         finalDf = pd.concat(concat)
-        finalDf.to_pickle('your_pickle_file.pkl') # you can store the results in a pickle or do whatever you want, export to BQ, etc
+        finalDf.to_pickle('data_with_cent_loss.pkl') # you can store the results in a pickle or do whatever you want, export to BQ, etc
         
     except:
         pass
