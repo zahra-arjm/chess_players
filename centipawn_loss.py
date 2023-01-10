@@ -138,7 +138,7 @@ for game_idx, game in enumerate(tqdm(my_list)):
         
         concat = [finalDf, gameDf]
         finalDf = pd.concat(concat)
-        finalDf.to_pickle('your_pickle_file.pkl') # you can store the results in a pickle or do whatever you want, export to BQ, etc
+        finalDf.to_pickle('data_with_cent_loss.pkl')
         
     # except:
     #     pass
