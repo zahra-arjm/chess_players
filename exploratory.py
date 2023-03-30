@@ -67,7 +67,7 @@ for file in allPickleFiles:
 #       inplace=True
 #       )
 
-# remove column Moves
+
 del df["Moves"]
 df = df.dropna(subset=['White Name'], axis=0)
 df = df[df['White Name'].str.contains('NA')== False]
@@ -119,15 +119,15 @@ correlationDf = pd.concat([whiteRatingDf, blackRatingDf])
 
 # Remove empty players
 correlationDf = correlationDf.dropna(subset=['Player'], axis=0)
-# Remove cheater Igor Rausis
-if "rausis" not in playerName.lower():
-    correlationDf = correlationDf[~correlationDf['Player'].str.contains("Rausis")].copy()
-# Remove Niemann to be on the safe side
-if "niemann" not in playerName.lower():
-    correlationDf = correlationDf[~correlationDf['Player'].str.contains("Niemann")].copy()
-# Filter by Player
-if filterByPlayer == True:
-    correlationDf = correlationDf[correlationDf['Player'].str.contains(playerName)].copy()
+# # Remove cheater Igor Rausis
+# if "rausis" not in playerName.lower():
+#     correlationDf = correlationDf[~correlationDf['Player'].str.contains("Rausis")].copy()
+# # Remove Niemann to be on the safe side
+# if "niemann" not in playerName.lower():
+#     correlationDf = correlationDf[~correlationDf['Player'].str.contains("Niemann")].copy()
+# # Filter by Player
+# if filterByPlayer == True:
+#     correlationDf = correlationDf[correlationDf['Player'].str.contains(playerName)].copy()
 
 correlationDf.reset_index(inplace=True, drop=True)
 correlationDf['Av CP Loss'] = correlationDf['CP Loss List'].apply(lambda x: np.mean(x))
