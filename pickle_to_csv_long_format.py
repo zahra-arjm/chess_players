@@ -53,4 +53,4 @@ for game_idx, game in df.iterrows():
                         player,
                         if_won,
                         count_moves)
-df_long.to_csv('data_with_cent_loss.csv')
+df_long.to_csv('data_with_cent_loss_long.csv')
